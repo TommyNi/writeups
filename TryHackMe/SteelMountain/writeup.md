@@ -1,8 +1,15 @@
 # Steel Mountain
 This is a write up for the TryHackMe room [Steel Mountain](https://tryhackme.com/room/steelmountain).
 
+## Table of Contents
+- [Task 1 Introduction](##Task-1-Introduction)
+- [Task 2 Initial Access](##Task-2-Initial-Access)
+- [Task 3 Privilege Escalation](##Task-3-Privilege-Escalation)
+- [Task 4 Access and Escalation Without Metasploit](##-Task-4-Access-and-Escalation-Without-Metasploit)
+
 
 ## Task 1 Introduction
+
 
 Press "Start Machine" and wait for the machine to boot up. Since it's a Windows machine it may take more than a minute to boot up fully.
 
@@ -64,12 +71,23 @@ $ TARGET_IP=10.10.57.65
     2. As we can see there is also another port 8080 using the http service, under the SERVICE column. This is the answer.
 
 ### QUESTION: Take a look at the other web server. What file server is running?
- 1. As we can see from the nmap output above port 8080 uses "HttpFileServer httpd 2.3". 
+    
+1. As we can see from the nmap output above port 8080 uses "HttpFileServer httpd 2.3". 
 
- 2. Go to http://TARGET_IP:8080
-  <br/><img src="otherHttpPort.png" width="400px" > 
-  <br>
-  to view the page. There is also a confirmation of the "HttpFileServer 2.3" service being used.
+2. Go to http://TARGET_IP:8080
+    <br/><img src="otherhttpPort.png" width="400px" > 
+    <br>
+    to view the page. There is also a confirmation of the "HttpFileServer 2.3" service being used.
+
+3. Search for "HttpFileServer httpd 2.3" in your favorite search tool. You should find the full name "Rejetto HTTP File Server". 
+
+### QUESTION: What is the CVE number to exploit this file server?
+
+1. One of the highest search hits is probably https://www.exploit-db.com/exploits/39161. This specific version of Rejetto File Server has a Remote Code Execution (RCE) vulnerability!
+     <br/> 
+    <img src="cve.png" width="700px" > 
+
+### QUESTION: Use Metasploit to get an initial shell. What is the user flag?
 
 
 ## Task 3 Privilege Escalation
