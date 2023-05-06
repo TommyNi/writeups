@@ -29,11 +29,28 @@ So to speed up brute force cracking of the login form, we should first try to fi
 
 ## Captcha
 
-Press the "Log in"-button about ten times, and you will se that "Too many bad login attempts!" and a Captcha appears. For every login we need to solve a mathematical puzzle. This is the rate limiter that was mentioned in Task 1. We cannot brute force this with Hydra. 
+Press the "Log in"-button about ten times, and you will see that ``Too many bad login attempts!`` and a Captcha appears. For every login we need to solve a mathematical puzzle. This is the rate limiter that was mentioned in Task 1. We cannot brute force this with Hydra and after a quick search on Google I did not find any other tools that does this automatically.
 
 ![image](https://user-images.githubusercontent.com/6702854/236621346-f88dfee3-1ba9-428c-8dde-6dcd52157071.png)
 
-
 Make sure that you try to login with a correct CHAPTA, so we can intercept all kinds of requests from the login form.
 
-# Getting 
+## Request Bodies
+In Burp under Target/Site Map and the URL for the /login page, you should now see at least two kinds of POST-requests from the login form
+![image](https://user-images.githubusercontent.com/6702854/236622180-2847a268-c159-42f8-afb5-283860065ecd.png)
+
+Clicking on those requests we get the full POST header:
+
+```
+POST /login HTTP/1.1
+<snip>
+username=user1&password=pwd
+```
+and
+```
+POST /login HTTP/1.1
+<snip>
+username=user1&password=pwd&captcha=656
+```
+
+# Creating our own brute force tool
