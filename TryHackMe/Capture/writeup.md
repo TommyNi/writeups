@@ -140,8 +140,8 @@ for username in usernames:
             break
 ```
 
-OK, this codeis almost right. We just have to add ``and 'Invalid captcha' not in response_text:`` to the first if-statement. 
-The last print-statement should read ``print(f'Valid username: {username} found') ``
+OK, this code is almost right. We could tune it further prompting to the AI, but we just have to add ``and 'Invalid captcha' not in response_text:`` to the first if-statement. 
+The last print-statement should also read ``print(f'Valid username: {username} found') ``
 
 So the complete code go brute force the username should look like this:
 
@@ -199,7 +199,9 @@ Go back to the web page and manually enter natalie as username and something as 
 
 We see that the response contains the string "Invalid password for user". 
 
+```
 prompt > change the program to use the username "natalie" and read the passwords from a file passwords.txt. Try the passwords until the response does not contain "Invalid password for user", instead of "does not exist"
+```
 
 ```
 import requests
@@ -227,7 +229,7 @@ for password in passwords:
             break
 ```
 
-As before, the code is not perfekt, but if we add and 'Invalid captcha' not in response_text: to the first if-statement we are good to go.
+As before, the code is not perfekt, but if we add ``and Invalid captcha' not in response_text:`` to the first if-statement we are good to go.
 The complete code looks like this:
 
 ```
@@ -273,8 +275,16 @@ for password in passwords:
             break
 ```
 
-Save the code in a file like bf_password.py and run it with python bf_password.py.
+Change the ``serverip`` and save the code in a file like ``bf_password.py``and run the code with ``python bf_password.py``.
 After a couple of minutes you have the password.
 
 Use the username and password to log in manually through the web page and get your well deserved flag!
+
+![image](https://user-images.githubusercontent.com/6702854/236633066-3cf343e5-23ec-4221-bc69-568ad7db6c5b.png)
+
+
+# Afterwords
+I hope you found this write up useful! 
+
+If you find any errors or have suggestions, please leave a comment.
 
