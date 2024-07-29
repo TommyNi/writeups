@@ -38,30 +38,30 @@ Which means that the port 80 inside the docker container, will be connected to e
 ![Bing2_image1](https://github.com/user-attachments/assets/929f021f-d90f-4543-92e2-3de0ebc95bb4)
 
 ## The source files
-When we study the `index.html` file, we can see it is a static HTML page that does not have any real logic. No JavaScript, no links, nothing that can help us get the flag.
+When we study the `index.html` file, we can see that it is a static HTML page that does not have any real logic. No JavaScript, no links, nothing that can help us get the flag.
 
-The other file on the other hand, `bing.php`, seems to be more interesting. It contains a lot of PHP code. The first row
+The other file on the other hand, `bing.php`, seems to be more interesting. It contains a lot of **PHP** code. The first row
 
 ``` php
 if (isset($_POST['Submit'])) 
 ```
 
-checks that the `Submit`-parameter is set in a **POST** request. If not, nothing will be returned from the PHP code. That means, if you browse to http://localhost:1337/bing.php you will get a blank page, since that is a **GET** request.
+checks that the `Submit`-parameter is set in a **POST** request. If not, nothing will be returned from the PHP code. That means, if you browse to http://localhost:1337/bing.php you will get a blank page since browsing makes **GET** requests.
 
 We need to **POST** a request to this page instead. This cannot be easily done with a browser, so we need another tool. More on that later. Let's check the rest of the code.
 
-The next line assumes that we have **POST**ed a request and reads a parameter called `ip` from the request.
+The next line assumes that we have **POST**ed a request and reads a parameter called `ip` from the request body.
 ```
 $target = trim($_REQUEST['ip']);
 ```
 
-Next we have a long array called `$substitions` that contains a lot of **bash** commands and other characters that will be replaced by an empty string in the function `str_replace`.  
+Next we have a long array called `$substitions` that contains a lot of words and other characters that will be replaced by an empty string in the function `str_replace`.  
 
 ``` php
 $target = str_replace(array_keys($substitutions), $substitutions, $target);
 ```
 
-So we can make a guess that there is some kind of filter that will remove forbidden commands and characters.
+It seems like there is some kind of **blacklist filter** that will remove forbidden commands and characters.
 
 The `$target` variable is then used (depending on which operating system you are running on) to make a system call with
 
@@ -79,16 +79,16 @@ If you have set up Burp and your browser correctly, letting the traffic flow thr
 
 ![Bing2_image2](https://github.com/user-attachments/assets/c40638a6-2c0b-4303-b9c6-f67454ba4cfb)
 
-If you right click on the GET request (or press CTRL-R), you can send this request to Repeater, where we can modify the request to fit our needs.
+If you right-click on the GET request (or press CTRL-R), you can send this request to Repeater, where we can modify the request to fit our needs.
 
 In the Repeater pane we can see this request code
 ``` http
 GET /bing.php HTTP/1.1
 Host: localhost:1337
 ```
-The rest of the request code, below these rows, are not necessary in this challenge an can be removed.
+The rest of the request code, below these rows, is not necessary in this challenge and can be removed.
 
-Now we need to change this to a POST request and the required parameters and we also need to tell the server that the parameters is for a form request:
+Now we need to change this to a POST request and the required parameters and we also need to tell the server that the parameters are from a HTTP FORM request:
 
 ``` http
 POST /bing.php HTTP/1.1
@@ -187,7 +187,7 @@ But both the words `cat` and `flag` and also whitespace are in the blacklist, so
 
 ### Bypass with quotes
 
-But there are some tricks to bypass these limits. We can bypass filters using single or double quotes, see Payload all the things https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Command%20Injection#bypass-with-single-quote
+But there are some tricks to bypass these limits. We can bypass filters using single or double quotes, see **Payload all the things** https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Command%20Injection#bypass-with-single-quote
 
 We can test this first by running a single command without whitespace that is in the blacklist, like `whoami` written using single quotes.
 
@@ -216,7 +216,7 @@ Yes, this technique works!
 
 ### Bypass without space
 
-Whitespace is the next challenge and here Payload all the things can also help us: https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Command%20Injection#bypass-without-space
+Whitespace is the next challenge and here **Payload all the things** can also help us: https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Command%20Injection#bypass-without-space
 
 We replace the whitespace with `${IFS}`.
 
