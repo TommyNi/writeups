@@ -1,3 +1,5 @@
+# Bing2
+
 Bing2 is a **web challenge** that is also a **white box testing** challenge, i.e. we have the full source code. This means that we can run the code for the challenge locally on our own machine. This can help a lot since we can put in our own debug code and make shortcuts to understand the code and its vulnerabilities better.
 
 We get the following files:
